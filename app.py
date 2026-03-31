@@ -1,12 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from pymongo import MongoClient
-import requests
 import bcrypt
+from bson import ObjectId
 
 app = Flask(__name__)
 
-# ✅ FIXED CORS (VERY IMPORTANT)
+# Enable CORS
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.after_request
@@ -23,12 +23,18 @@ db = client["mental_health"]
 collection = db["bookings"]
 users = db["users"]
 
-# Home Route
+# ---------------- FRONTEND ROUTES ---------------- #
+
 @app.route("/")
 def home():
-    return "Backend running 🚀"
+    return send_from_directory('.', 'index.html')
 
-# Test Route
+@app.route("/chat")
+def chat_page():
+    return send_from_directory('.', 'chat.html')
+
+# ---------------- TEST ROUTE ---------------- #
+
 @app.route("/test")
 def test():
     return jsonify({"status": "working"})
@@ -70,14 +76,12 @@ def get_bookings():
 
 @app.route("/delete_booking/<id>", methods=["DELETE"])
 def delete_booking(id):
-    from bson import ObjectId
     collection.delete_one({"_id": ObjectId(id)})
     return jsonify({"message": "Booking deleted 🗑️"})
 
 
 @app.route("/rate_booking/<id>", methods=["POST"])
 def rate_booking(id):
-    from bson import ObjectId
     rating = request.json.get("rating")
 
     collection.update_one(
@@ -126,14 +130,11 @@ def login():
     else:
         return jsonify({"message": "Wrong password ❌"}), 401
 
-# ---------------- CHATBOT ---------------- #
+# ---------------- CHATBOT API ---------------- #
 
-@app.route("/chat", methods=["POST"])
-def chat():
+@app.route("/chatbot", methods=["POST"])
+def chatbot():
     user_message = request.json.get("message", "")
-
-    # ⚠️ IMPORTANT: Render pe localhost AI nahi chalega
-    # So return dummy response for now
 
     return jsonify({
         "reply": "I'm here for you 💛 Tell me what's on your mind."
