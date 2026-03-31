@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MindNest - Therapy</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: linear-gradient(135deg, #fff8dc, #fff1b8, #ffe8a3);
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 50px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(10px);
+}
+
+.logo { font-size: 1.6rem; font-weight: bold; color: #f4b942; }
+
+nav { display: flex; gap: 25px; }
+
+nav a { text-decoration: none; color: #333; font-weight: 500; }
+nav a i { margin-right: 6px; }
+
+nav a:hover { color: #f4b942; }
+
+.therapy-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 25px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 12px;
+  text-align: center;
+}
+
+select, button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+}
+
+button { background: #f4b942; cursor: pointer; }
+
+li {
+  background: white;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 6px;
+}
+
+/* ⭐ rating */
+.stars {
+  margin-top: 5px;
+}
+
+.stars i {
+  cursor: pointer;
+  color: #ccc;
+}
+
+.stars i.active {
+  color: gold;
+}
+
+/* delete */
+.delete-btn {
+  background: #ff6b6b;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  margin-top: 5px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">MindNest</div>
+
+  <nav>
+    <a href="index.html"><i class="fas fa-house"></i>Home</a>
+    <a href="chat.html"><i class="fas fa-comment-dots"></i>Chat</a>
+    <a href="mood.html"><i class="fas fa-face-smile"></i>Safe Space</a>
+    <a href="therapy.html"><i class="fas fa-user-doctor"></i>Therapy</a>
+  </nav>
+</header>
+
+<section class="therapy-container">
+
+<h1>Book Therapy Slot 💛</h1>
+
+<form id="therapyForm">
+  <select id="modeSelect" required>
+    <option value="">Select session type</option>
+    <option value="Online">Online</option>
+    <option value="Offline">Offline</option>
+  </select>
+
+  <select id="doctorSelect" required>
+    <option value="">Select Doctor</option>
+    <option value="Dr. Sharma">Dr. Sharma</option>
+    <option value="Dr. Mehta">Dr. Mehta</option>
+  </select>
+
+  <select id="areaSelect" style="display:none;">
+    <option value="">Select Area</option>
+    <option value="Delhi">Delhi</option>
+    <option value="Gurgaon">Gurgaon</option>
+  </select>
+
+  <select id="slotSelect" required>
+    <option value="">Select Slot</option>
+  </select>
+
+  <button type="submit">Book Slot</button>
+</form>
+
+<h2>Bookings</h2>
+<ul id="bookedList"></ul>
+
+</section>
+
+<script>
+
+const BASE_URL = "https://git-commit-m-initial-commit-87ye.onrender.com";
+
+const list = document.getElementById("bookedList");
+
+/* LOAD BOOKINGS */
+function loadBookings(){
+  fetch(`${BASE_URL}/bookings`)
+  .then(res=>res.json())
+  .then(data=>{
+    list.innerHTML="";
+
+    data.forEach(b=>{
+      const li=document.createElement("li");
+
+      li.innerHTML=`
+        ${b.mode} | ${b.doctor || "N/A"} | ${b.area || "Online"} | ${b.slot}
+
+        <div class="stars">
+          ${[1,2,3,4,5].map(i=>`
+            <i class="fa fa-star ${b.rating>=i?"active":""}" onclick="rate('${b._id}',${i})"></i>
+          `).join("")}
+        </div>
+
+        <button class="delete-btn" onclick="deleteBooking('${b._id}')">Delete</button>
+      `;
+
+      list.appendChild(li);
+    });
+  });
+}
+
+/* DELETE */
+function deleteBooking(id){
+  fetch(`${BASE_URL}/delete_booking/${id}`,{
+    method:"DELETE"
+  })
+  .then(()=>loadBookings());
+}
+
+/* RATE */
+function rate(id,value){
+  fetch(`${BASE_URL}/rate_booking/${id}`,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({rating:value})
+  })
+  .then(()=>loadBookings());
+}
+
+/* MODE CHANGE */
+document.getElementById("modeSelect").addEventListener("change", function(){
+  const area = document.getElementById("areaSelect");
+  const slot = document.getElementById("slotSelect");
+
+  slot.innerHTML="<option value=''>Select Slot</option>";
+
+  if(this.value==="Offline"){
+    area.style.display="block";
+  } else {
+    area.style.display="none";
+
+    ["9 AM","12 PM","4 PM"].forEach(s=>{
+      let o=document.createElement("option");
+      o.value=s;
+      o.text=s;
+      slot.appendChild(o);
+    });
+  }
+});
+
+/* AREA CHANGE */
+document.getElementById("areaSelect").addEventListener("change", function(){
+  const slot = document.getElementById("slotSelect");
+
+  slot.innerHTML="<option value=''>Select Slot</option>";
+
+  ["10 AM","2 PM","5 PM"].forEach(s=>{
+    let o=document.createElement("option");
+    o.value=s;
+    o.text=s;
+    slot.appendChild(o);
+  });
+});
+
+/* SUBMIT */
+document.getElementById("therapyForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const mode = document.getElementById("modeSelect").value;
+  const doctor = document.getElementById("doctorSelect").value;
+  const area = document.getElementById("areaSelect").value;
+  const slot = document.getElementById("slotSelect").value;
+
+  fetch(`${BASE_URL}/book`,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      mode:mode,
+      doctor:doctor,
+      area: mode==="Offline" ? area : "Online",
+      slot:slot
+    })
+  })
+  .then(res=>res.json())
+  .then(()=>{
+    document.getElementById("therapyForm").reset();
+    document.getElementById("areaSelect").style.display="none";
+    loadBookings();
+  });
+});
+
+loadBookings();
+
+</script>
+
+</body>
+</html>

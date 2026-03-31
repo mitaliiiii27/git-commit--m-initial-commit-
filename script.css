@@ -1,0 +1,108 @@
+// ----- Chatbot -----
+if(document.getElementById('chatForm')) {
+  const chatForm = document.getElementById('chatForm');
+  const chatInput = document.getElementById('chatInput');
+  const chatContainer = document.getElementById('chatContainer');
+
+  const chatHistory = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+  chatHistory.forEach(m => addChatBubble(m.user, m.bot));
+
+  chatForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const userMessage = chatInput.value.trim();
+    if(!userMessage) return;
+
+    const botResponse = "I hear you: " + userMessage.substring(0,50) + "...";
+    addChatBubble(userMessage, botResponse);
+
+    chatHistory.push({user:userMessage, bot:botResponse});
+    localStorage.setItem('chatMessages', JSON.stringify(chatHistory));
+    chatInput.value = '';
+  });
+
+  function addChatBubble(user, bot) {
+    const userDiv = document.createElement('div');
+    userDiv.classList.add('chat-bubble','chat-user');
+    userDiv.textContent = user;
+    chatContainer.appendChild(userDiv);
+
+    const botDiv = document.createElement('div');
+    botDiv.classList.add('chat-bubble','chat-bot');
+    botDiv.textContent = bot;
+    chatContainer.appendChild(botDiv);
+
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+}
+
+// ----- Mood Tracker -----
+if(document.getElementById('moodForm')) {
+  const moodForm = document.getElementById('moodForm');
+  const moodInput = document.getElementById('moodInput');
+  const noteInput = document.getElementById('noteInput');
+  const moodList = document.getElementById('moodList');
+
+  const moods = JSON.parse(localStorage.getItem('moodEntries') || '[]');
+  moods.forEach(entry => addMoodEntry(entry.mood, entry.note, entry.date));
+
+  moodForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const mood = moodInput.value.trim();
+    const note = noteInput.value.trim();
+    const date = new Date().toLocaleDateString();
+    if(!mood) return;
+
+    addMoodEntry(mood, note, date);
+    moods.push({mood,note,date});
+    localStorage.setItem('moodEntries', JSON.stringify(moods));
+    moodInput.value = '';
+    noteInput.value = '';
+  });
+
+  function addMoodEntry(mood,note,date) {
+    const li = document.createElement('li');
+    li.textContent = `${date} - ${mood} : ${note}`;
+    moodList.appendChild(li);
+  }
+}
+
+// ----- Therapy Booking -----
+if(document.getElementById('therapyForm')) {
+  const therapyForm = document.getElementById('therapyForm');
+  const slotSelect = document.getElementById('slotSelect');
+  const bookedList = document.getElementById('bookedList');
+
+  const slots = JSON.parse(localStorage.getItem('availableSlots') || '["10:00 AM","12:00 PM","2:00 PM","4:00 PM"]');
+  const booked = JSON.parse(localStorage.getItem('bookedSlots') || '[]');
+
+  slots.forEach(s => {
+    const option = document.createElement('option');
+    option.value = s;
+    option.textContent = s;
+    slotSelect.appendChild(option);
+  });
+
+  booked.forEach(s => {
+    const li = document.createElement('li');
+    li.textContent = s;
+    bookedList.appendChild(li);
+  });
+
+  therapyForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const selectedSlot = slotSelect.value;
+    if(!selectedSlot) return;
+
+    const li = document.createElement('li');
+    li.textContent = selectedSlot;
+    bookedList.appendChild(li);
+
+    booked.push(selectedSlot);
+    localStorage.setItem('bookedSlots', JSON.stringify(booked));
+
+    const index = slots.indexOf(selectedSlot);
+    if(index > -1) slots.splice(index,1);
+    localStorage.setItem('availableSlots', JSON.stringify(slots));
+    slotSelect.remove(slotSelect.selectedIndex);
+  });
+}

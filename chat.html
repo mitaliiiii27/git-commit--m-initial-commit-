@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MindNest - Chat</title>
+
+<!-- ICON LIBRARY -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #fff9e6, #fff3cc, #ffe8a3);
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(10px);
+}
+
+.logo {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #f4b942;
+}
+
+nav {
+  display: flex;
+  gap: 25px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+nav a i {
+  margin-right: 6px;
+}
+
+nav a:hover {
+  color: #f4b942;
+}
+
+/* CHAT */
+.chat-container {
+  max-width: 750px;
+  margin: 20px auto;
+  background: rgba(255,255,255,0.9);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+}
+
+#chatContainer {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-bubble {
+  max-width: 75%;
+  padding: 14px 18px;
+  border-radius: 20px;
+}
+
+.user {
+  align-self: flex-end;
+  background: #f4b942;
+}
+
+.bot {
+  align-self: flex-start;
+  background: #fff;
+}
+
+/* INPUT */
+form {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+input {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: #fff7db;
+}
+
+button {
+  padding: 14px 20px;
+  background: #f4b942;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">MindNest</div>
+
+  <nav>
+    <a href="index.html"><i class="fas fa-house"></i>Home</a>
+    <a href="chat.html"><i class="fas fa-comment-dots"></i>Chat</a>
+    <a href="mood.html"><i class="fas fa-face-smile"></i>Safe Space</a>
+    <a href="therapy.html"><i class="fas fa-user-doctor"></i>Therapy</a>
+  </nav>
+</header>
+
+<section class="chat-container">
+  <div id="chatContainer"></div>
+
+  <form id="chatForm">
+    <input type="text" id="chatInput" placeholder="Type what's on your mind..." required>
+    <button type="submit">
+      <i class="fas fa-paper-plane"></i>
+    </button>
+  </form>
+</section>
+
+<script>
+const chatContainer = document.getElementById("chatContainer");
+const form = document.getElementById("chatForm");
+const input = document.getElementById("chatInput");
+
+/* ADD MESSAGE */
+function addMessage(text, sender) {
+  const div = document.createElement("div");
+  div.className = "chat-bubble " + sender;
+  div.textContent = text;
+  chatContainer.appendChild(div);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+/* START MESSAGE */
+window.onload = () => {
+  addMessage("Hey… I’m here for you 💛", "bot");
+};
+
+/* CALL BACKEND */
+async function getAIReply(message) {
+  const res = await fetch("https://git-commit-m-initial-commit-87ye.onrender.com/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ message })
+  });
+
+  const data = await res.json();
+  return data.reply;
+}
+
+/* SUBMIT */
+form.addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const userText = input.value.trim();
+  if (!userText) return;
+
+  addMessage(userText, "user");
+  input.value = "";
+
+  const typing = document.createElement("div");
+  typing.className = "chat-bubble bot";
+  typing.textContent = "Typing...";
+  chatContainer.appendChild(typing);
+
+  try {
+    const reply = await getAIReply(userText);
+    typing.remove();
+    addMessage(reply || "No response", "bot");
+  } catch {
+    typing.remove();
+    addMessage("Server error ❌", "bot");
+  }
+});
+</script>
+
+</body>
+</html>

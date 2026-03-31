@@ -1,0 +1,178 @@
+/* RESET */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #fff9e6, #fff3cc, #ffe8a3);
+  color: #111;
+}
+
+/* NAVBAR */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 4%;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* LOGO */
+header .logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #f4b942;
+}
+
+/* NAV LINKS */
+#navBar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+#navBar a {
+  text-decoration: none;
+  color: #111;
+  font-weight: 500;
+  position: relative;
+  transition: 0.3s;
+}
+
+/* hover underline */
+#navBar a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0%;
+  height: 2px;
+  background: #f4b942;
+  transition: 0.3s;
+}
+
+#navBar a:hover::after {
+  width: 100%;
+}
+
+#navBar a:hover {
+  color: #f4b942;
+}
+
+/* USER SECTION */
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#userDisplay {
+  font-weight: 600;
+  color: #111;
+}
+
+/* LOGOUT BUTTON */
+.logout-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background: #f4b942;
+  color: #222;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background: #e0a52f;
+}
+
+/* FORMS */
+form input,
+form select,
+form textarea,
+form button {
+  padding: 10px;
+  margin: 5px 0;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+form button {
+  background: #f4b942;
+  color: #222;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+form button:hover {
+  background: #e0a52f;
+}
+
+/* CONTAINERS */
+.hero-chat,
+.chat-container,
+.therapy-container {
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.mood-container {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+}
+
+/* FORM WIDTHS */
+#therapyForm,
+#chatForm {
+  width: 60%;
+}
+
+/* CHAT BUBBLES */
+.chat-bubble {
+  max-width: 80%;
+  padding: 15px 20px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* USER CHAT */
+.chat-user {
+  background: #f4b942;
+  color: #222;
+  align-self: flex-end;
+  border-bottom-right-radius: 0;
+}
+
+/* BOT CHAT */
+.chat-bot {
+  background: white;
+  color: #111;
+  align-self: flex-start;
+  border-bottom-left-radius: 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* LIST RESET */
+ul {
+  list-style: none;
+}
